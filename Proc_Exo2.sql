@@ -7,27 +7,43 @@ CREATE PROCEDURE Proc_Exo2
 AS 
 
 SELECT 
-MAX(p.FirstName) AS 'Name', 
-MAX(g.Name) AS 'Game',
-COUNT(*) AS 'NbGame', 
-SUM(CAST(IsWinner AS int)) AS 'NbWin',
-cast(SUM(CAST(IsWinner AS int)) as float) /COUNT(*)*100 as 'VictoryRatio'
+DATEPART(yy, gp.StartDate) AS 'Year',
+DATEPART(WW, gp.StartDate) AS 'WEEK',
+p.Id AS 'PlayerId', 
+p.FirstName AS 'PlayerName', 
+g.Name,
+COUNT(gp.Id) AS 'NbGame',
+SUM(CAST(pgp.Iswinner AS int)) AS 'NbWin',
+cast(SUM(CAST(IsWinner AS int)) as float) /COUNT(*)*100 as 'VictoryRatio',
+RANK() OVER(PARTITION BY DATEPART(WW, gp.StartDate) ORDER BY (cast(SUM(CAST(IsWinner AS int)) as float) /COUNT(*)*100) DESC) RANK
+ 
+FROM [dbo].[Exo2_PlayerGamePlay] pgp 
 
-
-FROM [dbo].[Exo2_PlayerGamePlay] pgp
-
-LEFT JOIN [dbo].[Exo2_GamePlay] gp ON pgp.GamePlayId = gp.Id
-LEFT JOIN [dbo].[Exo2_Game] g ON gp.GameId = g.Id
-INNER JOIN  [dbo].[Exo2_Player] p ON pgp.PlayerId = p.Id
+INNER JOIN [dbo].[Exo2_GamePlay] gp ON pgp.GamePlayId = gp.Id
+INNER JOIN [dbo].[Exo2_Game] g ON gp.GameId = g.Id
+INNER JOIN [dbo].[Exo2_Player] p ON pgp.PlayerId = p.Id
 
 WHERE 
-(g.Id = @GameId)
-AND 
-dbo.IsSameWeek(@StartDate, gp.StartDate) = 1
+DATEPART(yy, gp.StartDate) = 2024
+--AND
+--DATEPART(ww, gp.StartDate) = 
 
-GROUP BY 
-PlayerId
+GROUP BY
+DATEPART(yy, gp.StartDate),
+DATEPART(WW, gp.StartDate),
+p.Id,
+p.FirstName,
+g.Name
+
+
+ORDER BY 
+WEEK, 
+VictoryRatio DESC,
+RANK
+
+
 ------------------------------------------------------
 
 
-EXEC Proc_Exo2  4, '2024-02-19'
+EXEC Proc_Exo2  3, '2024-02-19'
+
