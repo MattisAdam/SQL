@@ -15,7 +15,7 @@ g.Name,
 COUNT(gp.Id) AS 'NbGame',
 SUM(CAST(pgp.Iswinner AS int)) AS 'NbWin',
 cast(SUM(CAST(IsWinner AS int)) as float) /COUNT(*)*100 as 'VictoryRatio',
-RANK() OVER(PARTITION BY DATEPART(WW, gp.StartDate) ORDER BY (cast(SUM(CAST(IsWinner AS int)) as float) /COUNT(*)*100) DESC) RANK
+RANK() OVER(PARTITION BY p.FirstName ORDER BY (cast(SUM(CAST(IsWinner AS int)) as float) /COUNT(*)*100) DESC) RANK
  
 FROM [dbo].[Exo2_PlayerGamePlay] pgp 
 
@@ -24,9 +24,8 @@ INNER JOIN [dbo].[Exo2_Game] g ON gp.GameId = g.Id
 INNER JOIN [dbo].[Exo2_Player] p ON pgp.PlayerId = p.Id
 
 WHERE 
-DATEPART(yy, gp.StartDate) = 2024
---AND
---DATEPART(ww, gp.StartDate) = 
+[dbo].[IsSameWeek](@StartDate,gp.StartDate) = 1
+
 
 GROUP BY
 DATEPART(yy, gp.StartDate),
@@ -37,8 +36,7 @@ g.Name
 
 
 ORDER BY 
-WEEK, 
-VictoryRatio DESC,
+p.FirstName,
 RANK
 
 
@@ -46,4 +44,3 @@ RANK
 
 
 EXEC Proc_Exo2  3, '2024-02-19'
-
