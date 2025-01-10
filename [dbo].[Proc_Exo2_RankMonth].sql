@@ -21,8 +21,7 @@ COUNT(gp.Id) AS 'NbGame',
 SUM(CAST(pgp.Iswinner AS int)) AS 'NbWin',
 ROUND (CAST (SUM (CAST (IsWinner AS int) ) as float) / COUNT(*)*100, -1) AS 'Victory Ratio',
 ISNULL(pgp.Score, 0) AS 'Score',
-CAST(RANK() OVER(ORDER BY cast(SUM(CAST(IsWinner AS int)) as float) /COUNT(*)*100 DESC) AS INT) AS 'Rank',
-[dbo].[PtsOnRank](RANK() OVER(ORDER BY cast(SUM(CAST(IsWinner AS int)) as float) /COUNT(*)*100 DESC)) * SUM(CAST(pgp.Iswinner AS int)) AS 'Pts Month'
+CAST(RANK() OVER(ORDER BY cast(SUM(CAST(IsWinner AS int)) as float) /COUNT(*)*100 DESC) AS INT) AS 'Rank'
 
 FROM [dbo].[Exo2_PlayerGamePlay] pgp 
 
